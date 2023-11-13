@@ -1,0 +1,1 @@
+This is a web based chat application which is made using MERN Stack.
