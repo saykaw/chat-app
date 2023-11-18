@@ -2,6 +2,6 @@
 
 .App{
     min-height: 110vh;
-    display: flex;
-    background-color: #222831;
+    background-color: #558cdf;
+    font-family:"Inter"
 }

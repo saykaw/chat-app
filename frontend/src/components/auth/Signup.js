@@ -1,5 +1,7 @@
-import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack, useToast } from '@chakra-ui/react'
 import React, { useState } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const Signup = () => {
     const [show,setShow] = useState(false)
@@ -8,12 +10,119 @@ const Signup = () => {
     const [password,setPassword] = useState("")
     const [confirmPassword,setConfirmPassword] = useState("")
     const [picture,setPicture] = useState("")
+    const[loading,setLoading] = useState(false)
+    const toast = useToast()
+    const navigate = useNavigate()
+
 
     const invertPassword = () => setShow(!show)
 
-    const postDetails = (pics) => {}
+    const postDetails = (pics) => {
+        setLoading(true);
+    
+        if (pics === undefined) {
+          toast({
+            title: "Please Select an Image!",
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          return;
+        }
+    
+        if (pics.type !== "image/jpeg" && pics.type !== "image/png") {
+          toast({
+            title: "Please Select a JPEG or PNG Image!",
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom",
+          });
+          setLoading(false);
+          return;
+        }
+    
+        if (pics.type === "image/jpeg" || pics.type === "image/png") {
+    
+          const data = new FormData()
+          data.append("file", pics)
+          data.append("upload_preset", "chat-app")
+          data.append("cloud_name", "dyy3jr2gp")
+          axios.post("https://api.cloudinary.com/v1_1/dyy3jr2gp/image/upload", data)
+            .then((response) => {
+              console.log("Cloudinary response:", response);
+              setPicture(response.data.url.toString());
+              setLoading(false);
+              toast({
+                title: "Image uploaded successfully!",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+              });
+            })
+            .catch((error) => {
+              console.log("Cloudinary error:", error);
+              setLoading(false);
+            });
+        }
+    }
 
-    const submitHandler = () => {}
+    const submitHandler = async() => {
+        setLoading(true)
+        if(!name || !email || !password || !confirmPassword){
+            toast({
+                title : "Please fill in all the details.",
+                status : "warning",
+                duration : 5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            setLoading(false)
+            return
+        }
+        if(password !== confirmPassword){
+            toast({
+                title : "Passwords do not match.",
+                status : "warning",
+                duration : 5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            return
+        }
+
+        try {
+            const config = {
+                headers : {
+                    "Content-type" : "application/json",
+                }
+            }
+            const {data} = await axios.post("/api/user",{name,email,password,picture},config)
+            toast({
+                title : "Registration Successful !!",
+                status : "success",
+                duration : 5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            localStorage.setItem('userInfo',JSON.stringify(data))
+            setLoading(false)
+            navigate('/login')  
+        }
+        catch(error){
+            toast({
+                title : "Error Occured.",
+                description:error.response.data.message,
+                status : "error",
+                duration : 5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            setLoading(false)
+        }
+    }
 
   return (
     <VStack spacing="5px" color="black"> 
@@ -81,8 +190,9 @@ const Signup = () => {
         colorScheme="green" 
         width="50%"
         onClick = {submitHandler}
+        isLoading = {loading}
         > 
-        Get Started!
+        Sign up
         </Button>
 
     </VStack>

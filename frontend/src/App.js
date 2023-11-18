@@ -10,7 +10,7 @@ function App() {
       {/* <Button colorScheme = 'blue'> Button </Button> */}
         <Routes>
           <Route path="/" element={<HomePage/>}/>
-          < Route path = '/chats' element = {<ChatPage/>}/>
+          < Route path = '/chat' element = {<ChatPage/>}/>
 
         </Routes>
     </div>
