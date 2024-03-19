@@ -109,7 +109,7 @@ const Signup = () => {
             })
             localStorage.setItem('userInfo',JSON.stringify(data))
             setLoading(false)
-            navigate('/login')  
+            navigate('/')  
         }
         catch(error){
             toast({

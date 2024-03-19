@@ -9,6 +9,8 @@ import { useToast } from '@chakra-ui/react'
 import axios from 'axios'
 import ChatLoading from '../components/ChatLoading'
 import UserListItem from '../components/UserAvatar/UserListItem'
+import { getSender } from '../config/ChatLogic'
+import{ Effect, NotificationBadge} from 'react-notification-badge';
 
 const SideDrawer = () => {
     const [search,setSearch] = useState("")
@@ -18,7 +20,7 @@ const SideDrawer = () => {
     const toast = useToast()
     
     
-    const {user, setSelectedChat,chats,setChats} = ChatState()
+    const {user, setSelectedChat,chats,setChats, notification, setNotification} = ChatState()
     const navigate = useNavigate()
 
     const logoutHandler = () =>{
@@ -111,7 +113,26 @@ const SideDrawer = () => {
         <div>
             <Menu>
                 <MenuButton p={1}>
+                    <NotificationBadge
+                    count ={notification.length}
+                    effect={Effect.SCALE}/>
                     <BellIcon fontSize="2xl" m={1}/>
+                    <MenuList pl={2}>
+                      {!notification.length && "No new messages"}
+                      {notification.map((notif) => (
+                        <MenuItem
+                        key={notif._id}
+                        onClick={() => {
+                        setSelectedChat(notif.chat);
+                        setNotification(notification.filter((n) => n !== notif));
+                        }}
+                        >
+                        {notif.chat.isGroupChat
+                          ? `New Message in ${notif.chat.chatName}`
+                          : `New Message from ${getSender(user, notif.chat.users)}`}
+                         </MenuItem>
+                        ))}
+                    </MenuList>
                 </MenuButton>
             </Menu>
             <Menu>
